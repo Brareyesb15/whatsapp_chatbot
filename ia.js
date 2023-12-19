@@ -1,6 +1,6 @@
 
 
-const url = "https://api.codegpt.co/v1/completion";
+const generalUrl = "https://api.codegpt.co/v1";
 
 
 const headers = {
@@ -9,8 +9,9 @@ const headers = {
     "authorization": `Bearer ${process.env.CODE_GPT_API_KEY}`
 };
 
-async function postData() {
+async function completion() {
     try {
+        const url = `${generalUrl}${"/completion"}`
         const response = await fetch(url, {
             method: "POST",
             headers: headers
