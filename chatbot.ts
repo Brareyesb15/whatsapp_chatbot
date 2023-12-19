@@ -1,16 +1,12 @@
 import { Boom } from "@hapi/boom";
-import { LoggerService } from "../../commons/services/logger.service";
 
 import {
   default as makeWASocket,
   useMultiFileAuthState,
   DisconnectReason,
-  fetchLatestBaileysVersion,
-  makeInMemoryStore,
   jidDecode,
   proto,
   getContentType,
-  WAMessageStubType,
   delay,
   downloadContentFromMessage,
 } from "@whiskeysockets/baileys";
@@ -18,20 +14,9 @@ import {
 const MAIN_LOGGER = require("@whiskeysockets/baileys/lib/Utils/logger").default;
 
 import { Bot } from "../../chatbots/entities/bot.entity";
-import { AppEvent } from "../../commons/events/app.event";
-import { ContactService } from "../../chatbots/services/contact.service";
-import { OpenAIService } from "../../chatbots/services/open-ai.service";
-import { CreateContactDto } from "../../chatbots/dtos/create-contact.dto";
-import { CreateMessageAIDto } from "../../chatbots/dtos/create-message-ai.dto";
-import { CreateChatbotConversationDto } from "../../chatbots/dtos/create-chatbot-conversation.dto";
 import { Injectable } from "@nestjs/common";
-import { ConnectionStatus } from "../../chatbots/enums/connection-state.enum";
 import * as fs from "fs-extra";
-import { BotService } from "../../chatbots/services/bot.service";
 import { MessageType } from "../../chatbots/enums/message-type.enum";
-import { ChatbotConversationService } from "../../chatbots/services/chatbot-conversation.service";
-import * as ffmpegInstaller from "@ffmpeg-installer/ffmpeg";
-import * as fluentFfmpeg from "fluent-ffmpeg";
 
 @Injectable()
 export class WhatsappGateway {
@@ -44,7 +29,7 @@ export class WhatsappGateway {
   private messageQueues = {};
   private messageKeyQueues: any[] = [];
   private WHATSAPP_FORMAT_PHONE = "@s.whatsapp.net";
-  private TIME_TO_WAIT: number = Number(process.env.TIME_TO_WAIT_RESPONSE);
+  private TIME_TO_WAIT: number = 25000
 
 
   private connectionMap: Record<string, Function> = {
@@ -166,7 +151,7 @@ export class WhatsappGateway {
 
             if (nestedMessages) {
               message.text = nestedMessages;
-              const content = await this.createChat(message);
+              const content = // ACÁ VA EL LLAMADO A LA FUNCIÓN QUE INTERACTUA CON LA IA. 
 
               //blue marked
               await this.client.readMessages(this.messageKeyQueues);
@@ -179,25 +164,22 @@ export class WhatsappGateway {
               delay(resDelay);
               setTimeout(async () => {
                 try {
-                  if (
-                    this.bot.chatbot.connectionState !== ConnectionStatus.Active
-                  )
-                    return;
-                  const fetchStatus = await this.client.fetchStatus(
-                    message.key.remoteJid
-                  );
+                //   if (
+                //     this.bot.chatbot.connectionState !== ConnectionStatus.Active
+                //   )
+                //     return;
+                //   const fetchStatus = await this.client.fetchStatus(
+                //     message.key.remoteJid
+                //   );
                   message.reply(content);
                 } catch (error) {
-                  this.loggerService.error(error);
+                  console.log(error)
                 }
               }, resDelay);
-              if (this.bot.chatbot.connectionState !== ConnectionStatus.Active)
-                return;
-              this.client.sendPresenceUpdate("pause", message.key.remoteJid);
             }
           }, this.TIME_TO_WAIT);
         } catch (error) {
-          this.loggerService.error(error);
+          console.log(error);
         }
       });
 
@@ -208,7 +190,7 @@ export class WhatsappGateway {
             this.connectionMap[connection] || this.connectionMap["default"];
           fn(update);
         } catch (error) {
-          this.loggerService.error(error);
+          console.log(error);
         }
       });
 
@@ -218,65 +200,21 @@ export class WhatsappGateway {
       this.client.sendText = (jid, text, quoted = "", options) =>
         this.client.sendMessage(jid, { text: text });
     } catch (error) {
-      this.loggerService.error(error);
-    }
-  }
-
-  private async pauseContact(sender: string): Promise<void> {
-    try {
-      await this.botService.pauseContact(this.bot.chatbotId, sender);
-    } catch (error) {
-      this.loggerService.error(error);
-    }
-  }
-
-  private async buildMessage(message: any): Promise<string> {
-    if (message.mtype === MessageType.Audio) {
-      const audioMessage = await this.receiveAudio(
-        this.bot.chatbotId,
-        message.msg
-      );
-      return audioMessage;
-    } else {
-      return message.text;
+        console.log(error);
     }
   }
 
   private async openConnection(parameters: any): Promise<void> {
     try {
-      await this.appEvent.emitEvent(AppEvent.sessionConnectAction);
       this.bot.qr = null;
-      this.bot.connectionState = ConnectionStatus.Active;
+      this.bot.connectionState = true;
       const botNumber = this.client
         .decodeJid(this.client.user.id)
         .replace(this.WHATSAPP_FORMAT_PHONE, "");
-      this.bot.chatbot.actualNumber = botNumber;
-
-      if (!this.bot.chatbot.numbers.includes(botNumber)) {
-        const message = await this.welcomeMessage(
-          this.bot.chatbotConfiguration.storeName
-        );
-        const number = `${this.bot.chatbot.actualNumber}`;
-        this.appEvent.emitEvent(AppEvent.sendMessageAction, {
-          message,
-          number,
-          chatbotId: "pai", // Cambié esto, estabamos enviando el mensaje de bienvenido desde el mismo numero y debe ser PAI.
-        });
-        this.bot.chatbot.numbers.push(this.bot.chatbot.actualNumber);
       }
-
-      // posiblemente ponerlo acá y actualizarlo con todo lo necesario ( status, numero etc.)
-      await this.botService.updateChatbot(this.bot.chatbot);
-      //TODO: UPDATE BOT NUMBER
-      //OBTENEMOS TODOS LOS CHATBOS QUE TENGAN ESTE NUMERO, Y LOS BORRAMOS Y LE CAMBIAMOS EL ESTADO
-      // TAMBIEN CAMBIARLO EN LOS OTROS GTWS
-
-      this.appEvent.emitEvent(AppEvent.qrConnectedAction, {
-        chatbotId: this.bot.chatbotId,
-      });
-    } catch (error) {
-      this.loggerService.error(error);
-    }
+      catch(error){
+        console.log(error)
+      }
   }
 
   private async closeConnection(parameters: any): Promise<void> {
@@ -284,10 +222,6 @@ export class WhatsappGateway {
       const { lastDisconnect } = parameters;
       let reason = new Boom(lastDisconnect?.error)?.output.statusCode;
       if (reason === DisconnectReason.loggedOut) {
-        // await this.appEvent.emitEvent(AppEvent.sessionDisconnectAction);
-        this.bot.chatbot.actualNumber = "none";
-        this.bot.chatbot.connectionState = "inactive";
-        await this.botService.updateChatbot(this.bot.chatbot);
         const folderToDelete = `./Sessions/${this.bot.chatbotId}`;
         fs.remove(folderToDelete)
           .then(() => {})
@@ -296,7 +230,7 @@ export class WhatsappGateway {
       }
       this.start();
     } catch (error) {
-      this.loggerService.error(error);
+        console.log(error)
       this.start();
     }
   }
@@ -306,58 +240,12 @@ export class WhatsappGateway {
       const { qr } = parameters;
       if (qr) {
         this.bot.qr = qr;
-        this.appEvent.emitEvent(AppEvent.newQRAction, {
-          chatbotId: this.bot.chatbotId,
-          qr: qr,
-        });
       }
     } catch (error) {
-      this.loggerService.error(error);
+        console.log(error)
     }
-  }
+}
 
-  private async isAvailable(): Promise<boolean> {
-    if (
-      this.bot.state !== true ||
-      this.bot.connectionState === ConnectionStatus.Limit
-    ) {
-      return false;
-    }
-    return true;
-  }
-
-  private async isContactPaused(message: any): Promise<boolean> {
-    let contact = message.key.remoteJid.replace(this.WHATSAPP_FORMAT_PHONE, "");
-    const endFlowByPausedContact = this.bot.pausedContacts.some((item) => {
-      return item == contact;
-    });
-    return endFlowByPausedContact;
-  }
-
-  private async isValidMessage(message: any): Promise<boolean> {
-    if (!message.message) return false;
-
-    if (
-      message.messageStubType === WAMessageStubType.CALL_MISSED_VOICE ||
-      message.messageStubType === WAMessageStubType.CALL_MISSED_VIDEO
-    ) {
-      return false;
-    }
-
-    if (
-      message.chat === "status@broadcast" ||
-      message.isGroup ||
-      message.mtype === MessageType.Protocol
-    ) {
-      return false;
-    }
-    return true;
-  }
-
-  private async welcomeMessage(name: string): Promise<string> {
-    const welcomeMessage = process.env.WELCOME_MESSAGE || "";
-    return welcomeMessage.replace("%s", name);
-  }
 
   private calculateDelay = async (content) => {
     try {
@@ -366,123 +254,10 @@ export class WhatsappGateway {
       const totalDelay = delayPerCharacter * characterCount;
       return totalDelay;
     } catch (error) {
-      this.loggerService.error(error);
+      console.log(error)
       return 0;
     }
   };
-
-  private async saveConversation(lastMessage: any): Promise<void> {
-    try {
-      const createChatbotConversationDto = new CreateChatbotConversationDto();
-      createChatbotConversationDto.chatbotId = this.bot.chatbotId;
-      createChatbotConversationDto.chatId = lastMessage.chat.split("@")[0];
-      createChatbotConversationDto.sender = lastMessage.sender;
-      createChatbotConversationDto.messageType = lastMessage.mtype;
-      createChatbotConversationDto.message = lastMessage.text;
-      createChatbotConversationDto.isGroup = lastMessage.isGroup;
-      createChatbotConversationDto.name = lastMessage.pushname;
-      createChatbotConversationDto.ai = lastMessage.isBaileys;
-
-      await this.chatbotConversationService.create(
-        createChatbotConversationDto
-      ); //TODO: PASARLO A BOTSERVICE
-    } catch (error) {
-      this.loggerService.error(error);
-    }
-  }
-
-  private async saveContact(lastMessage: any): Promise<void> {
-    try {
-      const client = this.bot.chatbot.actualNumber;
-      const sender = lastMessage.key.remoteJid.replace(
-        this.WHATSAPP_FORMAT_PHONE,
-        ""
-      );
-
-      const existingContact = this.bot.contacts.find(
-        (contact) => contact.sender === sender
-      );
-
-      if (existingContact) {
-        if (
-          existingContact.name !== lastMessage.pushName ||
-          !existingContact.name
-        ) {
-          existingContact.name = lastMessage.pushName;
-          await this.contactService.update(existingContact); //TODO: PASARLO A BOTSERVICE
-        }
-      } else {
-        const contact = new CreateContactDto();
-        contact.chatbotId = this.bot.chatbotId;
-        contact.client = client;
-        contact.sender = sender;
-        contact.paused = false;
-        contact.name = lastMessage.pushName;
-        const newContact = await this.contactService.create(contact);
-        this.bot.contacts.push(newContact);
-      }
-    } catch (error) {
-      this.loggerService.error(error);
-    }
-  }
-
-  private async createChat(lastMessage: any): Promise<string> {
-    try {
-      const sender = lastMessage.key.remoteJid.replace(
-        this.WHATSAPP_FORMAT_PHONE,
-        ""
-      );
-      const createMessageAIDto = new CreateMessageAIDto();
-      createMessageAIDto.chatbotId = this.bot.chatbotId;
-      createMessageAIDto.sender = sender;
-      createMessageAIDto.message = lastMessage.text;
-      createMessageAIDto.client = this.client.decodeJid(this.client.user.id);
-      const content = await this.botService.createChat(createMessageAIDto);
-
-      //save responses
-      return content;
-    } catch (error) {
-      this.loggerService.error(error);
-    }
-  }
-
-  private async receiveAudio(chatbotId, audioMessage): Promise<string> {
-    const audioStream = await downloadContentFromMessage(audioMessage, "audio");
-    const botIdFolder = `./Sessions/${chatbotId}_session`;
-    const destinationFolder = botIdFolder + "/temp";
-    if (!fs.existsSync(destinationFolder)) {
-      fs.mkdirSync(destinationFolder, { recursive: true });
-    }
-
-    const oggFilePath = destinationFolder + "/audio.ogg";
-    const fileWriteStream = fs.createWriteStream(oggFilePath);
-
-    return new Promise(async (resolve, reject) => {
-      fileWriteStream.on("finish", async () => {
-        const mp3FilePath = destinationFolder + "/audio.ogg";
-        // await this.convertOggMp3(oggFilePath, mp3FilePath);
-        const text = await this.openAIService.voiceToText(mp3FilePath);
-        resolve(text);
-      });
-
-      audioStream.pipe(fileWriteStream);
-    });
-  }
-
-  async convertOggMp3(inputStream, outStream) {
-    const ffmpegPath = ffmpegInstaller.path;
-    const ffmpeg = fluentFfmpeg();
-
-    ffmpeg.setFfmpegPath(inputStream);
-
-    ffmpeg
-      .audioQuality(96)
-      .toFormat("mp3")
-      .on("error", (error: Error) => this.loggerService.error(error))
-      .toFormat("mp3")
-      .on("error", (error: Error) => this.loggerService.error(error))
-      .pipe(outStream, { end: true });
-  }
 
   //---------------------------------------------------------------- //
 
