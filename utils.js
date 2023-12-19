@@ -1,7 +1,6 @@
 const fs = require("fs");
 
 const updateChatMemory = async ( sender, message, chatbotId) => {
-
   try {
     let chatHistory = await readChatMemoryFromFile(chatbotId);
     // Si es el primer mensaje del remitente, crea un nuevo array para el remitente
