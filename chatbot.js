@@ -11,10 +11,7 @@ const {
   const { Boom } = require("@hapi/boom");
   const { join } = require("path");
   const rimraf = require("rimraf");
-  const PhoneNumber = require("awesome-phonenumber");
   require("dotenv").config();
-  const PORT = process.env.PORT;
-  const IP_ADDRESS = process.env.IP_ADDRESS;
 
   class whatsAppBot {
     constructor(sessionName, creds) {
@@ -269,8 +266,8 @@ const {
               msg.text = mensajesAnidados;
   
               //Enviamos el mensaje anidado a la IA
-              console.log(msg)
-              // await gpt(client, msg, chatUpdate, this.sessionName);
+              let response = await completion(msg.text)
+              this.sendText(msg.sender,response)
             }
           }, 2000);
         } catch (err) {
