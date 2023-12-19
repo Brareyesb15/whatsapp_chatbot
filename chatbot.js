@@ -16,7 +16,7 @@ const {
   const PORT = process.env.PORT;
   const IP_ADDRESS = process.env.IP_ADDRESS;
 
-  class BotProductsAI {
+  class whatsAppBot {
     constructor(sessionName, creds) {
       this.sessionName = sessionName || "whatsAppChatbot";
       this.donet = "";
@@ -24,16 +24,16 @@ const {
       this.store = makeInMemoryStore({
         logger: pino().child({ level: "silent", stream: "store" }),
       });
-      // this.messageQueues = {};
-      // this.connectionState = "";
-      // this.nameStore = ``;
-      // this.configuration = {};
-      // this.data = [];
-      // this.contacts = [];
-      // this.pausedContacts = [];
-      // this.qr = undefined;
-      // this.state = undefined;
-      // this.status = undefined;
+      this.messageQueues = {};
+      this.connectionState = "";
+      this.nameStore = ``;
+      this.configuration = {};
+      this.data = [];
+      this.contacts = [];
+      this.pausedContacts = [];
+      this.qr = undefined;
+      this.state = undefined;
+      this.status = undefined;
             this.start().then();
     }
   
@@ -216,52 +216,15 @@ const {
   
           //Ordena la data de un mensaje
           let msg = this.smsg(client, lastMessage);
-         
-          //Verificamos si el numero esta pausado PREGUNTAR SI NO PAUSA EN CUALQUIER BOT
-          let endFlowByPausedContact = await verifyPauseContact(
-            msg,
-            this.pausedContacts,
-            this.sessionName,
-            this.botNumber
-          );
   
           let cantMensajes;
           let mensaje;
-          
-          //Guarda todos los mensajes de BOTs 
-          if (
-            msg.mtype === `extendedTextMessage` ||
-            msg.mtype === `conversation` ||msg.mtype === `locationMessage`
-          ) {
-            mensaje = {
-              chatbotId: this.sessionName,
-              createdAt: msg.messageTimestamp,
-              name: msg.pushname,
-              chatId: msg.chat.split("@")[0],
-              sender: msg.sender,
-              message_type: msg.mtype,
-              location: msg.mtype === `locationMessage`?{
-                x: msg.msg.degreesLatitude,
-                y: msg.msg.degreesLongitude,
-              }:"false",
-              message: msg.text,
-              isGroup: msg.isGroup,
-              ai:msg.isBaileys
-            };
-            await saveAllMessage(mensaje);
-          }
          
           //---No responder a los siguientes mensajes:
   
           //           Historias                     Grupo                Message
           if (msg.chat === "status@broadcast" || msg.isGroup || msg.mtype==="protocolMessage") return;
-  
-          // Si el contacto esta pausado 
-          if (endFlowByPausedContact) {
-            console.log(`El contacto +${msg.sender.replace("@s.whatsapp.net", "")} esta pausado`);
-            return;
-          }
-  
+        
           //---
           if (
             (msg.mtype === "conversation" ||
@@ -287,50 +250,6 @@ const {
             }
           }
   
-          //----Urgente: Si el bot de CRM recibe multimedia o documentos no rsponder y pausar
-          if (
-            !(
-              msg.mtype === "conversation" ||
-              msg.mtype === "extendedTextMessage" ||
-              msg.mtype === "audioMessage"
-            ) &&
-            this.chatbotsCRM.includes(this.sessionName)
-          ) {
-            await client.sendText(
-              msg.sender,
-              "Pronto un representante se pondrá en contacto contigo."
-            );
-            console.log(`El contacto +${msg.sender.replace("@s.whatsapp.net", "")} fue pausado`);
-  
-            changePaused(
-              this.sessionName,
-              msg.sender.replace("@s.whatsapp.net", ""),
-              "true"
-            );
-            changePausedDb(
-              this.sessionName,
-              msg.sender.replace("@s.whatsapp.net", "")
-            );
-            notifyWA({
-              botId:this.sessionName,
-              num: this.botNumber,
-              sender: msg.sender,
-              name: msg.pushName,
-              email: "No registro",
-            });
-            return;
-          }
-          //----
-  
-          //Revisa el Status y Si el bot esta apagado, no responder
-          if (this.state !== true || this.connectionState === "limit") return; // Esto toca probarlo mandando state a false en el front y llegando al limite de tokens.
-        
-          //Esto ya no se usa creo
-          if (this.blockedNumbers.includes(this.botNumber)) {
-            console.log(`Bot number ${this.botNumber} is blocked.`);
-            return;
-          }
-  
           //Espera 20 segundo para acumular mensajes
           setTimeout(async () => {
             
@@ -348,23 +267,16 @@ const {
   
             if (mensajesAnidados) {
               msg.text = mensajesAnidados;
-              verifyContactData(
-                msg,
-                this.contacts,
-                this.pausedContacts,
-                this.sessionName
-              );
   
               //Enviamos el mensaje anidado a la IA
-              await gpt(client, msg, chatUpdate, this.sessionName);
+              console.log(msg)
+              // await gpt(client, msg, chatUpdate, this.sessionName);
             }
-          }, 20000);
+          }, 2000);
         } catch (err) {
           console.log(err);
         }
       });
-  
-  
   
       // Setting
       client.decodeJid = (jid) => {
@@ -385,80 +297,10 @@ const {
             this.store.contacts[id] = { id, name: contact.notify };
         }
       });
-  
-  
-      //Si necesitamos el numero o el nombre completo
-      client.getName = (jid, withoutContact = false) => {
-       let id = client.decodeJid(jid);
-        withoutContact = client.withoutContact || withoutContact;
-        let v;
-        if (id.endsWith("@g.us"))
-          return new Promise(async (resolve) => {
-            v = this.store.contacts[id] || {};
-            if (!(v.name || v.subject)) v = client.groupMetadata(id) || {};
-            resolve(
-              v.name ||
-                v.subject ||
-                PhoneNumber("+" + id.replace("@s.whatsapp.net", "")).getNumber(
-                  "international"
-                )
-            );
-          });
-        else
-          v =
-            id === "0@s.whatsapp.net"
-              ? {
-                  id,
-                  name: "WhatsApp",
-                }
-              : id === client.decodeJid(client.user.id)
-              ? client.user
-              : this.store.contacts[id] || {};
-        return (
-          (withoutContact ? "" : v.name) ||
-          v.subject ||
-          v.verifiedName ||
-          PhoneNumber("+" + jid.replace("@s.whatsapp.net", "")).getNumber(
-            "international"
-          )
-        );
-      };
-  
-  
-      //Cambia el estado de WS de un bot ej: Ocupado / Cerrado / Abierto
-      client.setStatus = (status) => {
-        client.query({
-          tag: "iq",
-          attrs: {
-            to: "@s.whatsapp.net",
-            type: "set",
-            xmlns: "status",
-          },
-          content: [
-            {
-              tag: "status",
-              attrs: {},
-              content: Buffer.from(status, "utf-8"),
-            },
-          ],
-        });
-        return status;
-      };
+
   
       client.public = true;
   
-  
-      client.diffusion = (receptor, campaign) => {
-        receptor = `${receptor}@s.whatsapp.net`;
-  
-        client.sendMessage(receptor, {
-          text: `${campaign.title}:
-          
-        ${campaign.content}`,
-        });
-  
-        return this.botNumber;
-      };
   
       client.serializeM = (m) => this.smsg(client, m);
   
@@ -506,44 +348,7 @@ const {
             this.start();
           }
         }
-  
-        if (connection === "open") {
-  
-  
-          this.qr = false;
-          quitarQr(false, this.sessionName);
-          this.connectionState = "active";
-          // Cambia a active y guarda el numero de telefono actual.
-          console.log("antes de botnumber",this.botNumber)
-          saveBotNumber(this.botNumber, "active", this.sessionName); 
-  
-          // Si el numero de la credencial cambia, saludar 
-          if (this.botNumber !== client.decodeJid(client.user.id)) {
-            
-            //---Envia por socket info para saludar nuevo Bot Numero y Nombre
-            numWA({
-              num: client.decodeJid(client.user.id),
-              name: this.nameStore,
-            });
-            //---
-            
-            this.botNumber = await client.decodeJid(client.user.id);
-          }
-        }
-  
-  
-        /** QR Code */
-        if (qr) {
-          // if (this.sessionName === "prueba1") console.log("STATE",this.connectionState)
-          this.qr = qr;
-          createQr(qr, this.sessionName);
-  
-          if (this.connectionState === "active") {
-            saveBotNumber(this.botNumber, "inactive", this.sessionName);
-            this.connectionState = "inactive";
-          }
-        }
-  
+
       });
   
   
@@ -553,104 +358,9 @@ const {
       //Para enviar mensajes recibe numero@ws y texto
       client.sendText = (jid, text, quoted = "", options) =>
         client.sendMessage(jid, { text: text, ...options });
-  
-      //Si algun dia manejamos especie de consola dentro del mismo BOT 
-      client.cMod = (
-        jid,
-        copy,
-        text = "",
-        sender = client.user.id,
-        options = {}
-      ) => {
-        let M = proto.WebMessageInfo;
-        //let copy = message.toJSON()
-        let mtype = Object.keys(copy.message)[0];
-        let isEphemeral = mtype === "ephemeralMessage";
-        if (isEphemeral) {
-          mtype = Object.keys(copy.message.ephemeralMessage.message)[0];
-        }
-        let msg = isEphemeral
-          ? copy.message.ephemeralMessage.message
-          : copy.message;
-        let content = msg[mtype];
-        if (typeof content === "string") msg[mtype] = text || content;
-        else if (content.caption) content.caption = text || content.caption;
-        else if (content.text) content.text = text || content.text;
-        if (typeof content !== "string")
-          msg[mtype] = {
-            ...content,
-            ...options,
-          };
-        if (copy.key.participant)
-          sender = copy.key.participant = sender || copy.key.participant;
-        else if (copy.key.participant)
-          sender = copy.key.participant = sender || copy.key.participant;
-        if (copy.key.remoteJid.includes("@s.whatsapp.net"))
-          sender = sender || copy.key.remoteJid;
-        else if (copy.key.remoteJid.includes("@broadcast"))
-          sender = sender || copy.key.remoteJid;
-        copy.key.remoteJid = jid;
-        copy.key.fromMe = sender === client.user.id;
-  
-        return M.fromObject(copy);
-      };
-  
-      //---Escuchar eventos del socket
-      this.socket.on("numwa", async (newBotNumber) => {
-        if (this.productosAINumber === this.botNumber) {
-          
-          const welcomeMessage = `¡Hola ${newBotNumber.name} 👋,\nBienvenido/a a ProductosAI! 🤖\n\nHas vinculado tu WhatsApp correctamente.\n\nPara empezar a interactuar con tu chatbot, simplemente envía un mensaje desde otro número de teléfono a tu número de WhatsApp.\n\nEstaré aquí para ayudarte a sacar el máximo potencial de ProductosAI para tu negocio 🫡\n\nEstaré a solo un mensaje de distancia ☺️`;
-  
-          await client.sendText(newBotNumber.num, welcomeMessage);
-        }
-      });
-  
-      this.socket.on("notify", async (notify) => {
-  
-        if (this.productosAINumber === this.botNumber) {
-  
-          //Notificacion de CRM
-          if (typeof notify.product === "undefined") {
-            const notifyMessage = `¡Excelente noticia, este prospecto esta listo para asignar!
-            \nNúmero del Cliente: +${notify.sender.replace(
-              "@s.whatsapp.net",
-              ""
-              )}\nNombre del Cliente: ${notify.name}\nEmail: ${notify.email}`;
-            
-              if (notify.botId==="bb09a009-5560-4ee3-91cd-1d9d6c910d28") {
-                await client.sendText(`5493875316726@s.whatsapp.net`, notifyMessage);
-                return
-              }
-        
-              
-            await client.sendText(`573002682180@s.whatsapp.net`, notifyMessage);
-            if (notify.botId === "ab6a15dd-b9d7-4765-acc6-1189c01e1e1f") {
-              
-              await client.sendText(`573104985613@s.whatsapp.net`, notifyMessage);
-              return
-            }
-            
-  
-          } else {
-  
-            //Notificacion de compra
-            const notifyMessage = `¡Excelente noticia, se ha concretado una venta!
-            \nNúmero del Cliente: +${notify.sender.replace(
-              "@s.whatsapp.net",
-              ""
-            )}\nNombre del Cliente: ${notify.name}\nProductos Adquiridos: ${
-              notify.product
-            }\nMonto Total: ${notify.price}`;
-            await client.sendText(notify.num, notifyMessage);
-          }
-        }
-      });
-  
-      //---
-  
-      return client;
     }
+  
   }
   
-  module.exports = BotProductsAI;
+  module.exports = whatsAppBot;
   
