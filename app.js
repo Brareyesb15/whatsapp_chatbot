@@ -1,7 +1,6 @@
 
 const express = require("express");
 const cors = require("cors");
-const mainRouter = require("./router/router");
 
 const app= express();  
 
@@ -19,6 +18,6 @@ app.use((req, res, next) => {
 
 app.use(express.json());
 
-app.use(mainRouter); // te permite modularizar tus routes.
+// app.use(mainRouter); // te permite modularizar tus routes.
 
 module.exports = {app,express}; 

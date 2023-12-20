@@ -11,6 +11,7 @@ const {
   const { Boom } = require("@hapi/boom");
   const { join } = require("path");
   const rimraf = require("rimraf");
+const { completion } = require("./ia");
   require("dotenv").config();
 
   class whatsAppBot {
@@ -267,7 +268,8 @@ const {
   
               //Enviamos el mensaje anidado a la IA
               let response = await completion(msg.text)
-              this.sendText(msg.sender,response)
+              console.log("estamos fuera", response)
+              msg.reply(response)
             }
           }, 2000);
         } catch (err) {
