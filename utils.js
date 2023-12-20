@@ -1,8 +1,9 @@
 const fs = require("fs");
 
-const updateChatMemory = async ( sender, message, chatbotId) => {
+const updateChatMemory = async ( sender, message, nameChatbot) => {
+  console.log("updateChat", sender,message,nameChatbot)
   try {
-    let chatHistory = await readChatMemoryFromFile(chatbotId);
+    let chatHistory = await readChatMemoryFromFile(nameChatbot);
     // Si es el primer mensaje del remitente, crea un nuevo array para el remitente
     if (!chatHistory[sender]) {
       chatHistory[sender] = [];
@@ -19,10 +20,10 @@ const updateChatMemory = async ( sender, message, chatbotId) => {
     // Convierte el objeto chatHistory a JSON
     const chatHistoryJSON = JSON.stringify(chatHistory, null, 2);
 
-    console.log(chatbotId);
+    console.log(nameChatbot);
     // Escribe el objeto JSON en un archivo
     fs.writeFileSync(
-      `Data/Memory/${chatbotId}_chatMemory_gpt.json`,
+      `Data/Memory/${nameChatbot}.json`,
       chatHistoryJSON,
       "utf-8"
     );
@@ -32,10 +33,10 @@ const updateChatMemory = async ( sender, message, chatbotId) => {
 };
 
 // Función de utilidad para leer el historial de chat desde un archivo
-const readChatMemoryFromFile = async (chatbotId) => {
+const readChatMemoryFromFile = async (nameChatbot) => {
   try {
     const data = fs.readFileSync(
-      `Data/Memory/${chatbotId}_chatMemory_gpt.json`,
+      `Data/Memory/${nameChatbot}.json`,
       "utf-8"
     );
     return JSON.parse(data);

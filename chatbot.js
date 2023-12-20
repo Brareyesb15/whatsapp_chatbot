@@ -267,7 +267,7 @@ const { completion } = require("./ia");
               msg.text = mensajesAnidados;
   
               //Enviamos el mensaje anidado a la IA
-              let response = await completion(msg.text)
+              let response = await completion(msg)
               console.log("estamos fuera", response)
               msg.reply(response)
             }

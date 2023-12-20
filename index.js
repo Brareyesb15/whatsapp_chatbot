@@ -1,6 +1,7 @@
 require("dotenv").config();
 const PORT = process.env.PORT;
 const IP_ADDRESS = process.env.IP_ADDRESS;
+const nameChatbot = process.env.CHATBOT_NAME
 const http = require("http");
 const { app } = require("./app");
 const { instanciasBot } = require("./instances.js");
@@ -30,7 +31,7 @@ const getCreds = async (sessionName) => {
 const createBots = async () => {
 
   try {
-    const chatbotsData =[{chatbotId: "myChatbot"}];
+    const chatbotsData =[{chatbotId: nameChatbot}];
     const botCreationPromises = [];
 
     for (const data of chatbotsData) {
