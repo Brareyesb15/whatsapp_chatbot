@@ -124,14 +124,60 @@ const updateAgent = async (msg) => {
     }
 };
 
+const deleteAgent = async (msg) => {
+    try {
+        
+        // Get the value associated with the 'nameAgent' key from the text
+        const nameValue = extractValueByKey(msg.text, `agentId`);
+
+        if (nameValue !== null) {
+            // Create the payload object with the agent's id
+            
+            const url = `${generalUrl}/agent/${nameValue}`;
+            // Make the request 
+            const response = await fetch(url, {
+                method: "DELETE",
+                headers: headers
+            });
+
+            const jsonResponse = await response.json();
+
+            return `Agent deleted: ${JSON.stringify(jsonResponse, null, 2)}`;
+
+        } else {
+            // Handle the case where 'nameAgent' was not found or does not have an associated value
+            return "'agentId' not found or does not have an associated value.";
+        }
+}catch(error){
+    return error.message;
+}
+}
+
+const usersMe = async (msg) => {
+    try {
+     
+            const url = `${generalUrl}/users/me`;
+            // Make the request 
+            const response = await fetch(url, {
+                method: "GET",
+                headers: headers
+            });
+
+            const jsonResponse = await response.json();
+
+            return `User info: ${JSON.stringify(jsonResponse, null, 2)}`; 
+}catch(error){
+    return error.message;
+}
+}
 
 const methods = {
     "/createAgent" :  createAgent,
     "/getAgent" : getAgent,
     "/listAgents" : listAgents,
     "/updateAgent"  : updateAgent,
-    // "/deleteAgent" :  deleteAgent,
-    // "/usersMe" : usersMe,
+    "/deleteAgent" :  deleteAgent,
+    "/usersMe" : usersMe,
     // "/loadDocuments" : loadDocuments,
     // "/trainDocuments": trainDocuments,
     // "/loadTrainDocuments" : loadTrainDocuments,
