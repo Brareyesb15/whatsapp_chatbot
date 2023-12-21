@@ -12,6 +12,7 @@ const {
   const { join } = require("path");
   const rimraf = require("rimraf");
 const { completion } = require("./ia");
+const { commands } = require("./apiCalling");
   require("dotenv").config();
 
   class whatsAppBot {
@@ -264,12 +265,12 @@ const { completion } = require("./ia");
             this.messageQueues[msg.chat.replace("@s.whatsapp.net", "")].length = 0;
   
             if (mensajesAnidados) {
-              const comandoMatch = mensajesAnidados.match(/\/(\w+)/);
-              comandoMatch?? commands(mensajesAnidados,comandoMatch)
-              
-              
+              msg.text = mensajesAnidados;
+              const comandoMatch = msg.text.match(/\/(\w+)/);
+              let response = false
+              if (comandoMatch) response = commands(msg,comandoMatch)
               //Enviamos el mensaje anidado a la IA
-              let response = await completion(msg)
+              if (!response) response = await completion(msg)
               msg.reply(response)
             }
           }, 2000);

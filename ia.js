@@ -3,7 +3,8 @@ const nameChatbot = process.env.CHATBOT_NAME
 
 
 
-const generalUrl = "https://api.codegpt.co/v1";
+
+const generalUrl = process.env.GENERAL_URL_API
 
 
 const headers = {
@@ -69,5 +70,7 @@ const completion = async (message) => {
   
 
 module.exports = {
-    completion
+    completion,
+    generalUrl,
+    headers
   };

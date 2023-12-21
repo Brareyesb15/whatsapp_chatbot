@@ -60,9 +60,27 @@ const methods = {
   "/deleteDocument" : deleteDocument
 }
 
+// Función para extraer el valor de una clave desde el texto
+function extractValueByKey(text, key) {
+  // Utilizar una expresión regular para buscar la clave y su valor
+  const regex = new RegExp(`${key}\\s*:\\s*([^,\\s]+)`);
+  const match = text.match(regex);
+
+  // Si se encuentra una coincidencia, devolver el valor encontrado
+  if (match && match[1]) {
+      return match[1];
+  }
+
+  // Si no se encuentra la clave o no hay valor asociado, devolver null
+  return null;
+}
+
+
 
 
 module.exports = {
   updateChatMemory,
   readChatMemoryFromFile,
+  methods,
+  extractValueByKey
 };
