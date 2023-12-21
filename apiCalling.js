@@ -1,17 +1,18 @@
 const { headers, generalUrl } = require("./ia");
-const {  extractValueByKey } = require("./utils");
-const zlib = require('zlib');
+const {  extractValueByKey, extractAgentProperties } = require("./utils");
 
 
 
 
-const commands = async (msg,command) => {
-const method = methods[command[0]];
-const response = await method(msg)
+const commands = async (msg, command) => {
+    try {
+        const response = await methods[command[0]](msg);
+        return response || false;
+    } catch (error) {
+        return `Error: Unidentified method`;
+    }
+};
 
-if (response) return response
-return false
-}
 
 
 const createAgent = async (msg) => {
@@ -44,37 +45,91 @@ const createAgent = async (msg) => {
     }
 };
 
+const getAgent = async (msg) => {
+    try {
+        
+        // Get the value associated with the 'nameAgent' key from the text
+        const nameValue = extractValueByKey(msg.text, `agentId`);
 
-// async function decodeResponse(response) {
-//     try {
-//       // Descomprimir el cuerpo si está comprimido con Brotli
-//       const contentEncoding = response.headers.get('content-encoding');
-//       console.log("contentencoding", contentEncoding)
-//       let responseBody;
-  
-//       if (contentEncoding && contentEncoding.toLowerCase() === 'br') {
-//         const compressedBody = await response.arrayBuffer();
-//         console.log("compressed", compressedBody)
-//         const decompressedBody = zlib.brotliDecompressSync(compressedBody);
+        if (nameValue !== null) {
+            // Create the payload object with the agent's id
+            
+            const url = `${generalUrl}/agent/${nameValue}`;
+            // Make the request 
+            const response = await fetch(url, {
+                method: "GET",
+                headers: headers
+            });
 
-//         console.log("decompressed", decompressedBody)
-//         responseBody = decompressedBody.toString('utf-8');
-//       } else {
-//         // Si no está comprimido, simplemente lee el cuerpo como texto
-//         responseBody = await response.text();
-//       }
-  
-//       return responseBody;
-//     } catch (error) {
-//       throw error;
-//     }
-//   }
+            const jsonResponse = await response.json();
+
+            return `Agent: ${JSON.stringify(jsonResponse, null, 2)}`;
+
+        } else {
+            // Handle the case where 'nameAgent' was not found or does not have an associated value
+            return "'agentId' not found or does not have an associated value.";
+        }
+}catch(error){
+    return error.message;
+}
+}
+
+const listAgents = async () => {
+    try {
+            const url = `${generalUrl}/agent`;
+            // Make the request with the updated payload
+            const response = await fetch(url, {
+                method: "GET",
+                headers: headers
+            });
+
+            const jsonResponse = await response.json();
+
+            return `Agents: ${JSON.stringify(jsonResponse, null, 2)}`;
+
+    }catch(error){
+        return error.message;
+}
+}
+
+const updateAgent = async (msg) => {
+    try {
+        const payload = extractAgentProperties(msg.text);
+        
+        if (payload) {
+            // Extracted properties successfully
+            const agentId = payload.agentId;
+            const url = `${generalUrl}/agent/${agentId}`;
+
+            console.log("Payload", payload)
+            
+            // Make the request
+            const response = await fetch(url, {
+                method: "PATCH",
+                headers: headers,
+                body : JSON.stringify(payload)
+
+            });
+
+            console.log("response", response)
+
+            const jsonResponse = await response.json();
+
+            return `Agent: ${JSON.stringify(jsonResponse, null, 2)}`;
+        } else {
+            return "No agent properties found in the message.";
+        }
+    } catch (error) {
+        return error.message;
+    }
+};
+
 
 const methods = {
     "/createAgent" :  createAgent,
-    // "/getAgent" : getAgent,
-    // "/listAgents" : listAgents,
-    // "/updateAgent"  : updateAgent,
+    "/getAgent" : getAgent,
+    "/listAgents" : listAgents,
+    "/updateAgent"  : updateAgent,
     // "/deleteAgent" :  deleteAgent,
     // "/usersMe" : usersMe,
     // "/loadDocuments" : loadDocuments,

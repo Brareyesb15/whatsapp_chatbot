@@ -60,6 +60,49 @@ function extractValueByKey(text, key) {
   // Si no se encuentra la clave o no hay valor asociado, devolver null
   return null;
 }
+const extractAgentProperties = (text) => {
+  try {
+      const properties = text.match(/(\w+)\s*:\s*("([^"]*)"|([^,]*))/g);
+      if (!properties) {
+          return null;
+      }
+
+      const agentProperties = {};
+      properties.forEach(property => {
+          const [keyWithQuotes, valueWithQuotes] = property.split(/\s*:\s*/);
+          const key = keyWithQuotes.replace(/"/g, '');
+          const cleanedValue = valueWithQuotes.replace(/^"(.*)"$/, '$1');
+
+          // Verificar si el valor es numérico y ajustar el tipo
+          if (['temperature', 'topk', 'maxTokens'].includes(key)) {
+              const numericValue = parseFloat(cleanedValue);
+
+              if (isNaN(numericValue)) {
+                  throw new Error(`Invalid value for ${key}. Must be a number.`);
+              }
+
+              // Validar rango para 'temperature'
+              if (key === 'temperature' && (numericValue < 0 || numericValue > 1)) {
+                  throw new Error(`Invalid value for ${key}. Must be between 0 and 1.`);
+              }
+
+              agentProperties[key] = numericValue;
+          } else {
+              // Si no es un número, mantener el valor como cadena
+              agentProperties[key] = cleanedValue;
+          }
+      });
+
+      return agentProperties;
+  } catch (error) {
+      throw new Error(`Error extracting agent properties: ${error.message}`);
+  }
+};
+
+
+
+
+
 
 
 
@@ -67,5 +110,6 @@ function extractValueByKey(text, key) {
 module.exports = {
   updateChatMemory,
   readChatMemoryFromFile,
-  extractValueByKey
+  extractValueByKey,
+  extractAgentProperties
 };
