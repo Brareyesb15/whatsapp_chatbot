@@ -264,11 +264,12 @@ const { completion } = require("./ia");
             this.messageQueues[msg.chat.replace("@s.whatsapp.net", "")].length = 0;
   
             if (mensajesAnidados) {
-              msg.text = mensajesAnidados;
-  
+              const comandoMatch = mensajesAnidados.match(/\/(\w+)/);
+              comandoMatch?? commands(mensajesAnidados,comandoMatch)
+              
+              
               //Enviamos el mensaje anidado a la IA
               let response = await completion(msg)
-              console.log("estamos fuera", response)
               msg.reply(response)
             }
           }, 2000);

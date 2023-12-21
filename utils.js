@@ -45,6 +45,21 @@ const readChatMemoryFromFile = async (nameChatbot) => {
   }
 };
 
+const methods = {
+  "/createAgent" :  createAgent,
+  "/getAgent" : getAgent,
+  "/listAgents" : listAgents,
+  "/updateAgent"  : updateAgent,
+  "/deleteAgent" :  deleteAgent,
+  "/usersMe" : usersMe,
+  "/loadDocuments" : loadDocuments,
+  "/trainDocuments": trainDocuments,
+  "/loadTrainDocuments" : loadTrainDocuments,
+  "/listDocuments" :  listDocuments,
+  "/getDocument" : getdocument,
+  "/deleteDocument" : deleteDocument
+}
+
 
 
 module.exports = {
