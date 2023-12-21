@@ -268,9 +268,10 @@ const { commands } = require("./apiCalling");
               msg.text = mensajesAnidados;
               const comandoMatch = msg.text.match(/\/(\w+)/);
               let response = false
-              if (comandoMatch) response = commands(msg,comandoMatch)
+              if (comandoMatch) response = await commands(msg,comandoMatch)
               //Enviamos el mensaje anidado a la IA
               if (!response) response = await completion(msg)
+             
               msg.reply(response)
             }
           }, 2000);

@@ -45,20 +45,6 @@ const readChatMemoryFromFile = async (nameChatbot) => {
   }
 };
 
-const methods = {
-  "/createAgent" :  createAgent,
-  "/getAgent" : getAgent,
-  "/listAgents" : listAgents,
-  "/updateAgent"  : updateAgent,
-  "/deleteAgent" :  deleteAgent,
-  "/usersMe" : usersMe,
-  "/loadDocuments" : loadDocuments,
-  "/trainDocuments": trainDocuments,
-  "/loadTrainDocuments" : loadTrainDocuments,
-  "/listDocuments" :  listDocuments,
-  "/getDocument" : getdocument,
-  "/deleteDocument" : deleteDocument
-}
 
 // Función para extraer el valor de una clave desde el texto
 function extractValueByKey(text, key) {
@@ -81,6 +67,5 @@ function extractValueByKey(text, key) {
 module.exports = {
   updateChatMemory,
   readChatMemoryFromFile,
-  methods,
   extractValueByKey
 };
