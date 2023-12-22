@@ -1,5 +1,6 @@
 const { headers, generalUrl } = require("./ia");
 const {  extractValueByKey, extractAgentProperties } = require("./utils");
+const fs = require('fs').promises;
 
 
 
@@ -111,7 +112,7 @@ const updateAgent = async (msg) => {
 
             });
 
-            console.log("response", response)
+            
 
             const jsonResponse = await response.json();
 
@@ -171,6 +172,185 @@ const usersMe = async (msg) => {
 }
 }
 
+const loadDocuments = async (filename) => {
+    try {
+        const filePath = `./Data/Documents/${filename}`;
+
+        // Lee el contenido del archivo
+        const fileContent = await fs.readFile(filePath);
+
+        // Crea un objeto Blob
+        const fileBlob = new Blob([fileContent], { type: 'application/pdf' });
+
+        // Crea un objeto FormData
+        const formData = new FormData();
+        formData.append('file', fileBlob, filename);
+
+        const headers = {
+            'Authorization': `Bearer ${process.env.CODE_GPT_API_KEY}`, // Reemplaza con tu clave API
+        };
+
+        const url = `${generalUrl}/document/load`;
+        
+        // Realiza la solicitud POST
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: headers,
+            body: formData
+        });
+
+        // Parsea la respuesta JSON
+        const jsonResponse = await response.json();
+
+        return `Document load: ${JSON.stringify(jsonResponse, null, 2)}`;
+    } catch (error) {
+        return error.message;
+    }
+};
+
+const trainDocuments = async (msg) => {
+    try {
+        const nameValue = extractValueByKey(msg.text, `documentId`);
+        console.log(nameValue)
+
+        if (nameValue !== null) {
+      
+            // Create the payload object with the documents's id
+        const url = `${generalUrl}/document/training/${nameValue}`;
+        
+        // Realiza la solicitud POST
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: headers
+        });
+
+        // Parsea la respuesta JSON
+        const jsonResponse = await response.json();
+        console.log("response",jsonResponse)
+
+        return `Document trained: ${JSON.stringify(jsonResponse, null, 2)}`;
+    }
+    return "DocumentId was not provided";
+} catch (error) {
+        return error.message;
+    }
+};
+
+const loadTrainDocuments = async (filename) => {
+    try {
+        const filePath = `./Data/Documents/${filename}`;
+
+        // Lee el contenido del archivo
+        const fileContent = await fs.readFile(filePath);
+
+        // Crea un objeto Blob
+        const fileBlob = new Blob([fileContent], { type: 'application/pdf' });
+
+        // Crea un objeto FormData
+        const formData = new FormData();
+        formData.append('file', fileBlob, filename);
+
+        const headers = {
+            'Authorization': `Bearer ${process.env.CODE_GPT_API_KEY}`, // Reemplaza con tu clave API
+        };
+
+        const url = `${generalUrl}/document/load-and-training`;
+        
+        // Realiza la solicitud POST
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: headers,
+            body: formData
+        });
+
+        // Parsea la respuesta JSON
+        const jsonResponse = await response.json();
+
+        return `Document load and trained: ${JSON.stringify(jsonResponse, null, 2)}`;
+    } catch (error) {
+        return error.message;
+    }
+};
+
+const listDocuments = async (msg) => {
+    try {
+     
+            const url = `${generalUrl}/document`;
+            // Make the request 
+            const response = await fetch(url, {
+                method: "GET",
+                headers: headers
+            });
+
+            const jsonResponse = await response.json();
+
+            return `Your documents: ${JSON.stringify(jsonResponse, null, 2)}`; 
+}catch(error){
+    return error.message;
+}
+}
+
+const getDocument = async (msg) => {
+    try {
+        const nameValue = extractValueByKey(msg.text, `documentId`);
+       
+
+        if (nameValue !== null) {
+      
+            // Create the payload object with the documents's id
+        const url = `${generalUrl}/document/${nameValue}`;
+        
+        // Realiza la solicitud POST
+        const response = await fetch(url, {
+            method: 'GET',
+            headers: headers
+        });
+
+        // Parsea la respuesta JSON
+        const jsonResponse = await response.json();
+        console.log("response",jsonResponse)
+
+        return `Document info: ${JSON.stringify(jsonResponse, null, 2)}`; // Acá se podría hacer que el content del document fuera más corto.
+    }
+
+    return "DocumentId was not provided";
+
+} catch (error) {
+        return error.message;
+    }
+};
+
+const deleteDocument = async (msg) => {
+    try {
+        const nameValue = extractValueByKey(msg.text, `documentId`);
+       
+
+        if (nameValue !== null) {
+      
+            // Create the payload object with the documents's id
+        const url = `${generalUrl}/document/${nameValue}`;
+        
+        // Realiza la solicitud POST
+        const response = await fetch(url, {
+            method: 'DELETE',
+            headers: headers
+        });
+
+        // Parsea la respuesta JSON
+        const jsonResponse = await response.json();
+        console.log("response",jsonResponse)
+
+        return jsonResponse.message; // Acá se podría hacer que el content del document fuera más corto.
+    }
+
+    return "DocumentId was not provided";
+
+} catch (error) {
+        return error.message;
+    }
+};
+
+
 const methods = {
     "/createAgent" :  createAgent,
     "/getAgent" : getAgent,
@@ -178,12 +358,12 @@ const methods = {
     "/updateAgent"  : updateAgent,
     "/deleteAgent" :  deleteAgent,
     "/usersMe" : usersMe,
-    // "/loadDocuments" : loadDocuments,
-    // "/trainDocuments": trainDocuments,
-    // "/loadTrainDocuments" : loadTrainDocuments,
-    // "/listDocuments" :  listDocuments,
-    // "/getDocument" : getdocument,
-    // "/deleteDocument" : deleteDocument
+    "/loadDocuments" : loadDocuments,
+    "/trainDocuments": trainDocuments,
+    "/loadTrainDocuments" : loadTrainDocuments,
+    "/listDocuments" :  listDocuments,
+    "/getDocument" : getDocument,
+    "/deleteDocument" : deleteDocument
   }
 
 
