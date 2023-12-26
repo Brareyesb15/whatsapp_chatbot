@@ -13,24 +13,6 @@ const headers = {
     "authorization": `Bearer ${process.env.CODE_GPT_API_KEY}`
 };
 
-// Define a set of commands with corresponding methods
-const methods = {
-    "/createAgent": createAgent,
-    "/getAgent": getAgent,
-    "/listAgents": listAgents,
-    "/updateAgent": updateAgent,
-    "/deleteAgent": deleteAgent,
-    "/usersMe": usersMe,
-    "/loadDocuments": loadDocuments,
-    "/trainDocuments": trainDocuments,
-    "/loadTrainDocuments": loadTrainDocuments,
-    "/listDocuments": listDocuments,
-    "/getDocument": getDocument,
-    "/deleteDocument": deleteDocument,
-    "/defaultAgent": defaultAgent,
-    "/myAgent": myAgent
-};
-
 // Define a function to handle commands
 const commands = async (msg, command) => {
     try {
@@ -426,9 +408,25 @@ const myAgent = async (msg) => {
     }
 };
 
+// Define a set of commands with corresponding methods
+const methods = {
+    "/createAgent": createAgent,
+    "/getAgent": getAgent,
+    "/listAgents": listAgents,
+    "/updateAgent": updateAgent,
+    "/deleteAgent": deleteAgent,
+    "/usersMe": usersMe,
+    "/loadDocuments": loadDocuments,
+    "/trainDocuments": trainDocuments,
+    "/loadTrainDocuments": loadTrainDocuments,
+    "/listDocuments": listDocuments,
+    "/getDocument": getDocument,
+    "/deleteDocument": deleteDocument,
+    "/defaultAgent": defaultAgent,
+    "/myAgent": myAgent
+};
 // Export the functions for external use
 module.exports = {
     commands,
-    createAgent,
-    noAgent
+    createAgent
 };

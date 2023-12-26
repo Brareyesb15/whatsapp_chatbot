@@ -8,10 +8,10 @@ const nameChatbot = process.env.CODE_GPT_API_KEY;
 // Import required modules and components
 const http = require("http");
 const { app } = require("./app");
-const { instanciasBot } = require("./instances.js");
+const { instanciasBot } = require("./chatbot/instances.js");
 const fs = require("fs").promises;
 const { join } = require("path");
-const whatsAppBot = require("./chatbot.js");
+const whatsAppBot = require("./chatbot/chatbot.js");
 
 // Function to retrieve credentials based on the provided session name
 const getCreds = async (sessionName) => {
