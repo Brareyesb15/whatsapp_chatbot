@@ -1,8 +1,15 @@
-const { headers, generalUrl } = require("./ia");
-const {  extractValueByKey, extractAgentProperties } = require("./utils");
+
+const {  extractValueByKey, extractAgentProperties, updateJsonAgents, readJsonAgents } = require("./utils");
 const fs = require('fs').promises;
+const nameChatbot = process.env.CODE_GPT_API_KEY
 
+const generalUrl = process.env.GENERAL_URL_API
 
+const headers = {
+    "accept": "application/json",
+    "content-type": "application/json",
+    "authorization": `Bearer ${process.env.CODE_GPT_API_KEY}`
+};
 
 
 const commands = async (msg, command) => {
@@ -111,8 +118,6 @@ const updateAgent = async (msg) => {
                 body : JSON.stringify(payload)
 
             });
-
-            
 
             const jsonResponse = await response.json();
 
@@ -350,6 +355,45 @@ const deleteDocument = async (msg) => {
     }
 };
 
+const defaultAgent = async (msg) => {
+    try {
+        const nameValue = extractValueByKey(msg.text, `agentId`);
+        const number = msg.sender.split("@")[0];
+        if (nameValue !== null) {
+         await updateJsonAgents(number, nameValue, nameChatbot)
+         return `agent ${nameValue} is now your agent`
+    }
+
+    return "DocumentId was not provided";
+
+} catch (error) {
+        return error.message;
+    }
+};
+
+const noAgent = async (nameChatbot) => {
+    try {
+      let agents = await listAgents()
+      return `You don't have any agent associated.
+      To select one of your agents, write /defaultAgent agentId: (chosen agent id).
+      Your available agents are these: ${agents}`
+    } catch (err) {
+      return {};
+    }
+  };
+
+  const myAgent = async (msg) => {
+    try {
+    const number = msg.sender.split("@")[0];
+    console.log("number",number)
+      let agents = await readJsonAgents(nameChatbot)
+      console.log(agents)
+      return `actual agent is ${agents[number]}`
+    } catch (err) {
+      return {};
+    }
+  };
+
 
 const methods = {
     "/createAgent" :  createAgent,
@@ -363,11 +407,14 @@ const methods = {
     "/loadTrainDocuments" : loadTrainDocuments,
     "/listDocuments" :  listDocuments,
     "/getDocument" : getDocument,
-    "/deleteDocument" : deleteDocument
+    "/deleteDocument" : deleteDocument,
+    "/defaultAgent" : defaultAgent,
+    "/myAgent" : myAgent
   }
 
 
 module.exports = {
     commands,
-    createAgent
+    createAgent,
+    noAgent
 }

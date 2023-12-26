@@ -1,10 +1,9 @@
-const { readChatMemoryFromFile, updateChatMemory } = require("./utils");
-const nameChatbot = process.env.CHATBOT_NAME
-
-
-
+const { noAgent } = require("./apiCalling");
+const { readChatMemoryFromFile, updateChatMemory, readJsonAgents } = require("./utils");
+const nameChatbot = process.env.CODE_GPT_API_KEY
 
 const generalUrl = process.env.GENERAL_URL_API
+
 
 
 const headers = {
@@ -16,7 +15,14 @@ const headers = {
 const completion = async (message) => {
     const chatHistory = await readChatMemoryFromFile(nameChatbot);
     const number = message.sender.split("@")[0];
-  
+    let agents= await readJsonAgents(nameChatbot)
+    console.log("agents",agents)
+    let agent = agents[number]
+    
+    if (!agent){
+      return await noAgent()
+    }
+    
     updateChatMemory(
         number,
         { role: "user", content: message.text },
@@ -40,33 +46,40 @@ const completion = async (message) => {
   
     try {
       const url = `${generalUrl}${"/completion"}`;
-  
+    
       const payload = {
-        agent: "3697e58d-422a-499c-9bba-e70016429c43",
+        agent: agent,
         messages: messages,
         stream: false,
       };
   
-      console.log(payload);
+      console.log("payload",JSON.stringify(payload));
   
       const response = await fetch(url, {
         method: "POST",
         headers: headers,
         body: JSON.stringify(payload),
       });
+
+      console.log("response", response)
   
       const data = await response.json();
       const text = data.replace(/^data: /, "");
       
       // Actualiza el historial del chat con la respuesta recibida
       updateChatMemory(number, { role: "assistant", content: text }, nameChatbot);
-  
+      console.log("text", text)
       return text ; // Devuelve un objeto con la propiedad "text"
     } catch (error) {
       console.error("Error:", error);
       return { error: error.message }; // Devuelve un objeto con la propiedad "error"
     }
   };
+
+  const selectAgent = async () => {
+
+
+  }
   
 
 module.exports = {

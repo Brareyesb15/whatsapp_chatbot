@@ -98,10 +98,38 @@ const extractAgentProperties = (text) => {
       throw new Error(`Error extracting agent properties: ${error.message}`);
   }
 };
+const updateJsonAgents = async ( sender, agentId, nameChatbot) => {
 
+  try {
+    
+    let agents = await readJsonAgents(nameChatbot);
+    // Si es el primer mensaje del remitente, crea un nuevo array para el remitente
+    
+      agents[sender] = agentId;
+      console.log("agents",agents)
 
-
-
+    // Escribe el objeto JSON en un archivo
+    fs.writeFileSync(
+      `Data/Agents/${nameChatbot}.json`,
+      JSON.stringify(agents),
+      "utf-8"
+    );
+  } catch (error) {
+    console.error("Ha ocurrido un error en execute:", error);
+  }
+};
+const readJsonAgents = async (nameChatbot) => {
+  try {
+    const data = fs.readFileSync(
+      `Data/Agents/${nameChatbot}.json`,
+      "utf-8"
+    );
+    console.log("data",JSON.parse(data))
+    return JSON.parse(data);
+  } catch (err) {
+    return {};
+  }
+};
 
 
 
@@ -111,5 +139,8 @@ module.exports = {
   updateChatMemory,
   readChatMemoryFromFile,
   extractValueByKey,
-  extractAgentProperties
+  extractAgentProperties,
+  updateJsonAgents,
+  readJsonAgents,
+  
 };

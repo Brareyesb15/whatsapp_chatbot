@@ -13,3 +13,6 @@ dist-ssr
 *.local
 Sessions
 Data/Memory
+Data/Documents
+Data/Agents
+.env
