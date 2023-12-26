@@ -1,8 +1,8 @@
-**_WhatsApp Chatbot with codeGPT API Integration_**
+**WhatsApp Chatbot with codeGPT API Integration**
 
 This repository contains the source code for a chatbot application built using GPT (Generative Pre-trained Transformer) technology. The chatbot interacts with users through a messaging interface, processing commands, and performing various actions based on the provided input.
 
-**_Install Dependencies:_**
+**Install Dependencies:**
 
 Before running the application, install the required dependencies by executing:
 
@@ -10,11 +10,11 @@ npm install
 
 ### Setup
 
-**_Environment Variables:_**
+**Environment Variables:**
 
 Ensure you have the necessary environment variables set, including CODE_GPT_API_KEY and GENERAL_URL_API. These are essential for authenticating and communicating with the API.
 
-**_Integration with WhatsApp:_**
+**Integration with WhatsApp:**
 
 We use the Baileys library to create a chatbot using WhatsApp. Baileys generates a chatbot with the API key you provide in the .env file as the identifier. If you want to create a different chatbot using a different account, change the CODE_GPT_API_KEY in the .env file to create a new chatbot associated with your new codeGPT account. You can create your codeGPT account [here](https://www.codegpt.co).
 
@@ -51,7 +51,7 @@ If you do not provide a command, the message will be interpreted as a conversati
 
 Here are some of the available commands:
 
-**_Available Commands:_**
+**Available Commands:**
 
 **Create Agent:**
 
@@ -90,14 +90,17 @@ Here are some of the available commands:
   **Method Used:**
 
   - **Method Name:** `listAgents`
-  - **Functionality:** - Sends a request to retrieve a list of all available agents. - Returns the result of the agent list.
-    **Update Agent:**
+  - **Functionality:**
+    - Sends a request to retrieve a list of all available agents.
+    - Returns the result of the agent list.
+
+**Update Agent:**
 
 - `/updateAgent`: Update properties of a specific agent.
 
   Example: `/updateAgent agentId:123, property1:value1,property2:value2`
 
-  _Importante: separa por comas las propiedades a cambiar y solo los valores que quieras cambiar._
+  _Important: Separate by commas the properties to change and only the values you want to change._
 
   **Method Used:**
 
@@ -144,7 +147,7 @@ Here are some of the available commands:
 
   - **Method Name:** `loadDocuments`
   - **Functionality:**
-    - Recibe un documento y el comando `/loadDocuments` como caption.
+    - Receives a document and the command `/loadDocuments` as a caption.
     - Sends a request to load the document for processing.
     - Returns the result of the document loading process.
 
@@ -154,7 +157,7 @@ Here are some of the available commands:
 
   Example: `/trainDocuments documentId: 456`
 
-  _Recibe un id de documento para entrenar ese documento. Puedes obtener los documentos no entrenados a través de `/listDocument`._
+  _Receives a document ID to train that document. You can obtain the untrained documents through `/listDocument`._
 
   **Method Used:**
 
@@ -174,7 +177,7 @@ Here are some of the available commands:
 
   - **Method Name:** `loadTrainDocuments`
   - **Functionality:**
-    - Permite cargar y entrenar el documento al mismo tiempo.
+    - Allows loading and training the document at the same time.
     - Reads the content of the specified document file.
     - Creates a Blob and FormData objects.
     - Sends a request to load and train the document.
@@ -253,3 +256,10 @@ Here are some of the available commands:
 - The chatbot processes incoming messages and identifies commands using the `/` prefix.
 - Commands are mapped to specific methods that execute the corresponding functionality.
 - Methods interact with the GPT API, process data, and return informative responses.
+
+**Important:**
+
+- The chatbot's message history is limited to 30 messages.
+- The chatbot will function as long as the server is up and the QR code is scanned.
+- You won't need to scan the code every time you start the server; it will remember it.
+- Message history and the agent are associated with the phone number that writes and the chatbot to which it was written.
