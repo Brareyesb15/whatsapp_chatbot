@@ -1,7 +1,11 @@
 require("dotenv").config();
+
+// Set up constants for server configuration
 const PORT = process.env.PORT;
 const IP_ADDRESS = process.env.IP_ADDRESS;
-const nameChatbot = process.env.CODE_GPT_API_KEY
+const nameChatbot = process.env.CODE_GPT_API_KEY;
+
+// Import required modules and components
 const http = require("http");
 const { app } = require("./app");
 const { instanciasBot } = require("./instances.js");
@@ -9,6 +13,7 @@ const fs = require("fs").promises;
 const { join } = require("path");
 const whatsAppBot = require("./chatbot.js");
 
+// Function to retrieve credentials based on the provided session name
 const getCreds = async (sessionName) => {
   const filePath = join(
     process.cwd(),
@@ -24,28 +29,30 @@ const getCreds = async (sessionName) => {
       return `${num.split(":")[0]}@s.whatsapp.net`;
     }
   } catch (err) {
-    console.log("No hay credencial, crear bot nuevo");
+    console.log("No credentials found, create a new bot");
   }
 };
 
+// Function to create WhatsApp bots based on provided chatbot data
 const createBots = async () => {
-
   try {
-    const chatbotsData =[{chatbotId: nameChatbot}];
+    // Array containing chatbot data (in this case, only the chatbotId is used)
+    const chatbotsData = [{ chatbotId: nameChatbot }];
     const botCreationPromises = [];
 
+    // Iterate through each chatbot data and create a promise for bot creation
     for (const data of chatbotsData) {
       const chatbotId = data.chatbotId;
       const creds = await getCreds(chatbotId);
 
-      // Crear una promesa para la creación del bot
+      // Create a promise for bot creation
       const botCreationPromise = (async () => {
         if (creds) {
-          // Bot conectado
+          // Bot connected
           const botInstance = new whatsAppBot(chatbotId, creds);
           instanciasBot[chatbotId] = botInstance;
         } else {
-          // Bot desconectado
+          // Bot disconnected
           const botInstance = new whatsAppBot(chatbotId);
           instanciasBot[chatbotId] = botInstance;
         }
@@ -54,20 +61,20 @@ const createBots = async () => {
       botCreationPromises.push(botCreationPromise);
     }
 
-    // Esperar a que todas las promesas de creación de bots se completen
+    // Wait for all bot creation promises to complete
     await Promise.all(botCreationPromises);
-
   } catch (e) {
-    console.log("Error al obtener y crear los bots", e);
+    console.log("Error obtaining and creating bots", e);
   }
 };
 
-
-
-
+// Create an HTTP server using the Express app
 const server = http.createServer(app);
-createBots()
 
-  server.listen(PORT, IP_ADDRESS, () => {
-    console.log(`Listening on http://${IP_ADDRESS}:${PORT}`);
-  });
+// Call the function to create WhatsApp bots
+createBots();
+
+// Start the server and listen on the specified IP address and port
+server.listen(PORT, IP_ADDRESS, () => {
+  console.log(`Listening on http://${IP_ADDRESS}:${PORT}`);
+});

@@ -309,8 +309,12 @@ const { downloadMediaMessage } = require ('@whiskeysockets/baileys')
               if (comandoMatch) response = await commands(msg,comandoMatch)
               //Enviamos el mensaje anidado a la IA
               if (!response) response = await completion(msg)
-             
+             try{
               msg.reply(response)
+             }
+             catch(error){
+              msg.reply(error)
+             }
             }
           }, 2000);
         } catch (err) {
