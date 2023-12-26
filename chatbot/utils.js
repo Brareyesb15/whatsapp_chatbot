@@ -13,6 +13,7 @@ const updateChatMemory = async (sender, message, nameChatbot) => {
   try {
     let chatHistory = await readChatMemoryFromFile(nameChatbot);
 
+    console.log("completo", chatHistory, "individual", chatHistory[sender])
     if (!chatHistory[sender]) {
       chatHistory[sender] = [];
     }
@@ -49,9 +50,10 @@ const updateChatMemory = async (sender, message, nameChatbot) => {
 const readChatMemoryFromFile = async (nameChatbot) => {
   try {
     const data = fs.readFileSync(
-      `../Data/Memory/${nameChatbot}.json`,
-      "utf-8"
+      path.join(__dirname, '..', 'Data', 'Memory', `${nameChatbot}.json`),
+      'utf-8'
     );
+    console.log("DATAAAAAAAAA", data)
     return JSON.parse(data);
   } catch (err) {
     return {};
