@@ -107,6 +107,28 @@ const updateAgent = async (msg) => {
         if (payload) {
             // Extracted properties successfully
             const agentId = payload.agentId;
+            
+            const urlAgent = `${generalUrl}/agent/${agentId}`;
+            // Make the request 
+            const responseAgent = await fetch(urlAgent, {
+                method: "GET",
+                headers: headers
+            });
+
+            const agent = await responseAgent.json();
+        
+
+            console.log("agent", agent.documentId)
+            if (agent.documentId && agent.documentId.length > 0) {
+                console.log("entró?")
+                // Actualizar payload.documentId con lo que hay en agent.documentId
+                payload.documentId = [...agent.documentId, payload.documentId];
+            } else if (typeof payload.documentId === 'string') {
+                // Si agent.documentId no tiene nada, convertir payload.documentId en un array con su valor
+                payload.documentId = [payload.documentId];
+            }
+            
+
             const url = `${generalUrl}/agent/${agentId}`;
 
             console.log("Payload", payload)
@@ -118,6 +140,8 @@ const updateAgent = async (msg) => {
                 body : JSON.stringify(payload)
 
             });
+
+            console.log("response", response)
 
             const jsonResponse = await response.json();
 
