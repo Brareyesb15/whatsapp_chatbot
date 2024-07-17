@@ -36,10 +36,6 @@ function generarNombresAleatorios(cantidad) {
   return nombresAleatorios;
 }
 
-// Uso de la función para generar 10 nombres aleatorios
-const nombresDeAgentes = generarNombresAleatorios(10);
-console.log(nombresDeAgentes);
-
 module.exports = {
   generarNombresAleatorios,
 };

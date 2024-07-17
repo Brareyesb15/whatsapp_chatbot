@@ -1,5 +1,6 @@
 const fs = require("fs");
-const path = require('path');
+const path = require("path");
+const { generarNombresAleatorios } = require("./fibon");
 
 /**
  * Updates the chat memory with the user's message.
@@ -11,9 +12,11 @@ const path = require('path');
 const updateChatMemory = async (sender, message, nameChatbot) => {
   console.log("updateChat", sender, message, nameChatbot);
   try {
+    const nombres = generarNombresAleatorios(50);
+    console.log("number of aleatory names: ", nombres.length);
     let chatHistory = await readChatMemoryFromFile(nameChatbot);
 
-    console.log("completo", chatHistory, "individual", chatHistory[sender])
+    console.log("completo", chatHistory, "individual", chatHistory[sender]);
     if (!chatHistory[sender]) {
       chatHistory[sender] = [];
     }
@@ -26,13 +29,19 @@ const updateChatMemory = async (sender, message, nameChatbot) => {
 
     const chatHistoryJSON = JSON.stringify(chatHistory, null, 2);
 
-    const filePath = path.join(__dirname, '..', 'Data', 'Memory', `${nameChatbot}.json`);
+    const filePath = path.join(
+      __dirname,
+      "..",
+      "Data",
+      "Memory",
+      `${nameChatbot}.json`
+    );
 
     // Verifica si el archivo existe
     if (!fs.existsSync(filePath)) {
       // Si no existe, crea la carpeta y el archivo
       fs.mkdirSync(path.dirname(filePath), { recursive: true });
-      fs.writeFileSync(filePath, '{}', 'utf-8');
+      fs.writeFileSync(filePath, "{}", "utf-8");
     }
 
     fs.writeFileSync(filePath, chatHistoryJSON, "utf-8");
@@ -50,10 +59,10 @@ const updateChatMemory = async (sender, message, nameChatbot) => {
 const readChatMemoryFromFile = async (nameChatbot) => {
   try {
     const data = fs.readFileSync(
-      path.join(__dirname, '..', 'Data', 'Memory', `${nameChatbot}.json`),
-      'utf-8'
+      path.join(__dirname, "..", "Data", "Memory", `${nameChatbot}.json`),
+      "utf-8"
     );
-    console.log("DATAAAAAAAAA", data)
+    console.log("DATAAAAAAAAA", data);
     return JSON.parse(data);
   } catch (err) {
     return {};
@@ -92,19 +101,19 @@ const extractAgentProperties = (text) => {
     }
 
     const agentProperties = {};
-    properties.forEach(property => {
+    properties.forEach((property) => {
       const [keyWithQuotes, valueWithQuotes] = property.split(/\s*:\s*/);
-      const key = keyWithQuotes.replace(/"/g, '');
-      const cleanedValue = valueWithQuotes.replace(/^"(.*)"$/, '$1');
+      const key = keyWithQuotes.replace(/"/g, "");
+      const cleanedValue = valueWithQuotes.replace(/^"(.*)"$/, "$1");
 
-      if (['temperature', 'topk', 'maxTokens'].includes(key)) {
+      if (["temperature", "topk", "maxTokens"].includes(key)) {
         const numericValue = parseFloat(cleanedValue);
 
         if (isNaN(numericValue)) {
           throw new Error(`Invalid value for ${key}. Must be a number.`);
         }
 
-        if (key === 'temperature' && (numericValue < 0 || numericValue > 1)) {
+        if (key === "temperature" && (numericValue < 0 || numericValue > 1)) {
           throw new Error(`Invalid value for ${key}. Must be between 0 and 1.`);
         }
 
@@ -129,7 +138,7 @@ const extractAgentProperties = (text) => {
  */
 const updateJsonAgents = async (sender, agentId, nameChatbot) => {
   try {
-    const agentsFolderPath = path.join(__dirname, '..', 'Data', 'Agents');
+    const agentsFolderPath = path.join(__dirname, "..", "Data", "Agents");
     const agentsFilePath = path.join(agentsFolderPath, `${nameChatbot}.json`);
 
     // Check if the Agents folder exists, create it if not
@@ -139,14 +148,14 @@ const updateJsonAgents = async (sender, agentId, nameChatbot) => {
 
     // Check if the Agents JSON file exists, create it if not
     if (!fs.existsSync(agentsFilePath)) {
-      fs.writeFileSync(agentsFilePath, '{}', 'utf-8');
+      fs.writeFileSync(agentsFilePath, "{}", "utf-8");
     }
 
     let agents = await readJsonAgents(nameChatbot);
 
     agents[sender] = agentId;
 
-    fs.writeFileSync(agentsFilePath, JSON.stringify(agents), 'utf-8');
+    fs.writeFileSync(agentsFilePath, JSON.stringify(agents), "utf-8");
   } catch (error) {
     console.error("An error occurred in execute:", error);
   }
@@ -159,11 +168,8 @@ const updateJsonAgents = async (sender, agentId, nameChatbot) => {
  */
 const readJsonAgents = async (nameChatbot) => {
   try {
-    console.log("entró", nameChatbot)
-    const data = fs.readFileSync(
-      `Data/Agents/${nameChatbot}.json`,
-      "utf-8"
-    );
+    console.log("entró", nameChatbot);
+    const data = fs.readFileSync(`Data/Agents/${nameChatbot}.json`, "utf-8");
     console.log("data", JSON.parse(data));
     return JSON.parse(data);
   } catch (err) {
