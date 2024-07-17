@@ -205,13 +205,17 @@ const loadDocuments = async (filename) => {
         // Read the content of the file
         const fileContent = await fs.readFile(filePath);
 
+        console.log("file", fileContent)
+
         // Create a Blob object
         const fileBlob = new Blob([fileContent], { type: 'application/pdf' });
+        console.log("Blob type", fileBlob.type);
 
         // Create a FormData object
         const formData = new FormData();
         formData.append('file', fileBlob, filename);
 
+        console.log(formData)
         const headers = {
             'Authorization': `Bearer ${process.env.CODE_GPT_API_KEY}`, // Replace with your API key
         };
@@ -222,7 +226,7 @@ const loadDocuments = async (filename) => {
         const response = await fetch(url, {
             method: 'POST',
             headers: headers,
-            body: formData
+            body: formData  
         });
 
         // Parse the JSON response
