@@ -69,6 +69,8 @@ const readChatMemoryFromFile = async (nameChatbot) => {
   }
 };
 
+// Solo se agrega un comentario en el commit para probar la lógica del webhook.
+
 /**
  * Extracts the value associated with a key from the given text using a regular expression.
  *
