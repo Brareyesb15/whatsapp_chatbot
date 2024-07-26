@@ -55,19 +55,19 @@ const updateChatMemory = async (sender, message, nameChatbot) => {
  *
  * @param {string} nameChatbot - The name or identifier of the chatbot.
  * @returns {object} - The chat memory object.
-//  */
-// const readChatMemoryFromFile = async (nameChatbot) => {
-//   try {
-//     const data = fs.readFileSync(
-//       path.join(__dirname, "..", "Data", "Memory", `${nameChatbot}.json`),
-//       "utf-8"
-//     );
-//     console.log("DATAAAAAAAAA", data);
-//     return JSON.parse(data);
-//   } catch (err) {
-//     return {};
-//   }
-// };
+ */
+const readChatMemoryFromFile = async (nameChatbot) => {
+  try {
+    const data = fs.readFileSync(
+      path.join(__dirname, "..", "Data", "Memory", `${nameChatbot}.json`),
+      "utf-8"
+    );
+    console.log("DATAAAAAAAAA", data);
+    return JSON.parse(data);
+  } catch (err) {
+    return {};
+  }
+};
 
 /**
  * Extracts the value associated with a key from the given text using a regular expression.
