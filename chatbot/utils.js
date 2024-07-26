@@ -69,23 +69,23 @@ const readChatMemoryFromFile = async (nameChatbot) => {
   }
 };
 
-// /**
-//  * Extracts the value associated with a key from the given text using a regular expression.
-//  *
-//  * @param {string} text - The text containing key-value pairs.
-//  * @param {string} key - The key to search for.
-//  * @returns {string|null} - The value associated with the key or null if not found.
-//  */
-// function extractValueByKey(text, key) {
-//   const regex = new RegExp(`${key}\\s*:\\s*([^,\\s]+)`);
-//   const match = text.match(regex);
+/**
+ * Extracts the value associated with a key from the given text using a regular expression.
+ *
+ * @param {string} text - The text containing key-value pairs.
+ * @param {string} key - The key to search for.
+ * @returns {string|null} - The value associated with the key or null if not found.
+ */
+function extractValueByKey(text, key) {
+  const regex = new RegExp(`${key}\\s*:\\s*([^,\\s]+)`);
+  const match = text.match(regex);
 
-//   if (match && match[1]) {
-//     return match[1];
-//   }
+  if (match && match[1]) {
+    return match[1];
+  }
 
-//   return null;
-// }
+  return null;
+}
 
 /**
  * Extracts agent properties from the given text using a regular expression.
