@@ -36,7 +36,7 @@ const updateChatMemory = async (sender, message, nameChatbot) => {
       "Memory",
       `${nameChatbot}.json`
     );
-
+    // solo agregamos un comentario de prueba en este commit. lo encontrarás?
     // Verifica si el archivo existe
     if (!fs.existsSync(filePath)) {
       // Si no existe, crea la carpeta y el archivo
