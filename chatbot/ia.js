@@ -94,9 +94,9 @@ const completion = async (message) => {
 /**
  * Placeholder function for future functionality related to agent selection.
  */
-const selectAgent = async () => {
-  // Placeholder for future functionality related to agent selection
-};
+// const selectAgent = async () => {
+//   // Placeholder for future functionality related to agent selection
+// };
 
 module.exports = {
   completion,
