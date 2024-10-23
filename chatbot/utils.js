@@ -88,12 +88,12 @@ function extractValueByKey(text, key) {
   return null;
 }
 
-/**
- * Extracts agent properties from the given text using a regular expression.
- *
- * @param {string} text - The text containing key-value pairs representing agent properties.
- * @returns {object|null} - An object containing agent properties or null if not found.
- */
+// /**
+//  * Extracts agent properties from the given text using a regular expression.
+//  *
+//  * @param {string} text - The text containing key-value pairs representing agent properties.
+//  * @returns {object|null} - An object containing agent properties or null if not found.
+//  */
 const extractAgentProperties = (text) => {
   try {
     const properties = text.match(/(\w+)\s*:\s*("([^"]*)"|([^,]*))/g);
