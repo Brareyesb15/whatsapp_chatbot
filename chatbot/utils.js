@@ -178,11 +178,11 @@ const readJsonAgents = async (nameChatbot) => {
   }
 };
 
-module.exports = {
-  updateChatMemory,
-  readChatMemoryFromFile,
-  extractValueByKey,
-  extractAgentProperties,
-  updateJsonAgents,
-  readJsonAgents,
-};
+// module.exports = {
+//   updateChatMemory,
+//   readChatMemoryFromFile,
+//   extractValueByKey,
+//   extractAgentProperties,
+//   updateJsonAgents,
+//   readJsonAgents,
+// };
