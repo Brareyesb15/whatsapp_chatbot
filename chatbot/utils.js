@@ -69,116 +69,116 @@ const readChatMemoryFromFile = async (nameChatbot) => {
   }
 };
 
-/**
+// /**
 
- * Extracts the value associated with a key from the given text using a regular expression.
- *
- * @param {string} text - The text containing key-value pairs.
- * @param {string} key - The key to search for.
- * @returns {string|null} - The value associated with the key or null if not found.
- */
-function extractValueByKey(text, key) {
-  const regex = new RegExp(`${key}\\s*:\\s*([^,\\s]+)`);
-  const match = text.match(regex);
+//  * Extracts the value associated with a key from the given text using a regular expression.
+//  *
+//  * @param {string} text - The text containing key-value pairs.
+//  * @param {string} key - The key to search for.
+//  * @returns {string|null} - The value associated with the key or null if not found.
+//  */
+// function extractValueByKey(text, key) {
+//   const regex = new RegExp(`${key}\\s*:\\s*([^,\\s]+)`);
+//   const match = text.match(regex);
 
-  if (match && match[1]) {
-    return match[1];
-  }
+//   if (match && match[1]) {
+//     return match[1];
+//   }
 
-  return null;
-}
+//   return null;
+// }
 
-/**
- * Extracts agent properties from the given text using a regular expression.
- *
- * @param {string} text - The text containing key-value pairs representing agent properties.
- * @returns {object|null} - An object containing agent properties or null if not found.
- */
-const extractAgentProperties = (text) => {
-  try {
-    const properties = text.match(/(\w+)\s*:\s*("([^"]*)"|([^,]*))/g);
-    if (!properties) {
-      return null;
-    }
+// /**
+//  * Extracts agent properties from the given text using a regular expression.
+//  *
+//  * @param {string} text - The text containing key-value pairs representing agent properties.
+//  * @returns {object|null} - An object containing agent properties or null if not found.
+//  */
+// const extractAgentProperties = (text) => {
+//   try {
+//     const properties = text.match(/(\w+)\s*:\s*("([^"]*)"|([^,]*))/g);
+//     if (!properties) {
+//       return null;
+//     }
 
-    const agentProperties = {};
-    properties.forEach((property) => {
-      const [keyWithQuotes, valueWithQuotes] = property.split(/\s*:\s*/);
-      const key = keyWithQuotes.replace(/"/g, "");
-      const cleanedValue = valueWithQuotes.replace(/^"(.*)"$/, "$1");
+//     const agentProperties = {};
+//     properties.forEach((property) => {
+//       const [keyWithQuotes, valueWithQuotes] = property.split(/\s*:\s*/);
+//       const key = keyWithQuotes.replace(/"/g, "");
+//       const cleanedValue = valueWithQuotes.replace(/^"(.*)"$/, "$1");
 
-      if (["temperature", "topk", "maxTokens"].includes(key)) {
-        const numericValue = parseFloat(cleanedValue);
+//       if (["temperature", "topk", "maxTokens"].includes(key)) {
+//         const numericValue = parseFloat(cleanedValue);
 
-        if (isNaN(numericValue)) {
-          throw new Error(`Invalid value for ${key}. Must be a number.`);
-        }
+//         if (isNaN(numericValue)) {
+//           throw new Error(`Invalid value for ${key}. Must be a number.`);
+//         }
 
-        if (key === "temperature" && (numericValue < 0 || numericValue > 1)) {
-          throw new Error(`Invalid value for ${key}. Must be between 0 and 1.`);
-        }
+//         if (key === "temperature" && (numericValue < 0 || numericValue > 1)) {
+//           throw new Error(`Invalid value for ${key}. Must be between 0 and 1.`);
+//         }
 
-        agentProperties[key] = numericValue;
-      } else {
-        agentProperties[key] = cleanedValue;
-      }
-    });
+//         agentProperties[key] = numericValue;
+//       } else {
+//         agentProperties[key] = cleanedValue;
+//       }
+//     });
 
-    return agentProperties;
-  } catch (error) {
-    throw new Error(`Error extracting agent properties: ${error.message}`);
-  }
-};
+//     return agentProperties;
+//   } catch (error) {
+//     throw new Error(`Error extracting agent properties: ${error.message}`);
+//   }
+// };
 
-/**
- * Updates the JSON file containing agent associations with a new agent for the user.
- *
- * @param {string} sender - The unique identifier of the message sender.
- * @param {string} agentId - The identifier of the agent to be associated with the user.
- * @param {string} nameChatbot - The name or identifier of the chatbot.
- */
-const updateJsonAgents = async (sender, agentId, nameChatbot) => {
-  try {
-    const agentsFolderPath = path.join(__dirname, "..", "Data", "Agents");
-    const agentsFilePath = path.join(agentsFolderPath, `${nameChatbot}.json`);
+// /**
+//  * Updates the JSON file containing agent associations with a new agent for the user.
+//  *
+//  * @param {string} sender - The unique identifier of the message sender.
+//  * @param {string} agentId - The identifier of the agent to be associated with the user.
+//  * @param {string} nameChatbot - The name or identifier of the chatbot.
+//  */
+// const updateJsonAgents = async (sender, agentId, nameChatbot) => {
+//   try {
+//     const agentsFolderPath = path.join(__dirname, "..", "Data", "Agents");
+//     const agentsFilePath = path.join(agentsFolderPath, `${nameChatbot}.json`);
 
-    // Check if the Agents folder exists, create it if not
-    if (!fs.existsSync(agentsFolderPath)) {
-      fs.mkdirSync(agentsFolderPath, { recursive: true });
-    }
+//     // Check if the Agents folder exists, create it if not
+//     if (!fs.existsSync(agentsFolderPath)) {
+//       fs.mkdirSync(agentsFolderPath, { recursive: true });
+//     }
 
-    // Check if the Agents JSON file exists, create it if not
-    if (!fs.existsSync(agentsFilePath)) {
-      fs.writeFileSync(agentsFilePath, "{}", "utf-8");
-    }
+//     // Check if the Agents JSON file exists, create it if not
+//     if (!fs.existsSync(agentsFilePath)) {
+//       fs.writeFileSync(agentsFilePath, "{}", "utf-8");
+//     }
 
-    let agents = await readJsonAgents(nameChatbot);
+//     let agents = await readJsonAgents(nameChatbot);
 
-    agents[sender] = agentId;
+//     agents[sender] = agentId;
 
-    fs.writeFileSync(agentsFilePath, JSON.stringify(agents), "utf-8");
-  } catch (error) {
-    console.error("An error occurred in execute:", error);
-  }
-};
-/**
- * Reads the JSON file containing agent associations based on the chatbot's name.
- *
- * @param {string} nameChatbot - The name or identifier of the chatbot.
- * @returns {object} - The object containing user-agent associations.
- */
-const readJsonAgents = async (nameChatbot) => {
-  try {
-    console.log("entró", nameChatbot);
-    const data = fs.readFileSync(`Data/Agents/${nameChatbot}.json`, "utf-8");
-    console.log("data", JSON.parse(data));
-    return JSON.parse(data);
-  } catch (err) {
-    return {};
-  }
-};
+//     fs.writeFileSync(agentsFilePath, JSON.stringify(agents), "utf-8");
+//   } catch (error) {
+//     console.error("An error occurred in execute:", error);
+//   }
+// };
+// /**
+//  * Reads the JSON file containing agent associations based on the chatbot's name.
+//  *
+//  * @param {string} nameChatbot - The name or identifier of the chatbot.
+//  * @returns {object} - The object containing user-agent associations.
+//  */
+// const readJsonAgents = async (nameChatbot) => {
+//   try {
+//     console.log("entró", nameChatbot);
+//     const data = fs.readFileSync(`Data/Agents/${nameChatbot}.json`, "utf-8");
+//     console.log("data", JSON.parse(data));
+//     return JSON.parse(data);
+//   } catch (err) {
+//     return {};
+//   }
+// };
 
-let francisco_el_matematico = "camino";
+// let francisco_el_matematico = "camino";
 
 module.exports = {
   //
