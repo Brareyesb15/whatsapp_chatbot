@@ -162,23 +162,23 @@ const updateJsonAgents = async (sender, agentId, nameChatbot) => {
   }
 };
 /**
-//  * Reads the JSON file containing agent associations based on the chatbot's name.
-//  *
-//  * @param {string} nameChatbot - The name or identifier of the chatbot.
-//  * @returns {object} - The object containing user-agent associations.
-//  */
-// const readJsonAgents = async (nameChatbot) => {
-//   try {
-//     console.log("entró", nameChatbot);
-//     const data = fs.readFileSync(`Data/Agents/${nameChatbot}.json`, "utf-8");
-//     console.log("data", JSON.parse(data));
-//     return JSON.parse(data);
-//   } catch (err) {
-//     return {};
-//   }
-// };
+ * Reads the JSON file containing agent associations based on the chatbot's name.
+ *
+ * @param {string} nameChatbot - The name or identifier of the chatbot.
+ * @returns {object} - The object containing user-agent associations.
+ */
+const readJsonAgents = async (nameChatbot) => {
+  try {
+    console.log("entró", nameChatbot);
+    const data = fs.readFileSync(`Data/Agents/${nameChatbot}.json`, "utf-8");
+    console.log("data", JSON.parse(data));
+    return JSON.parse(data);
+  } catch (err) {
+    return {};
+  }
+};
 
-// let francisco_el_matematico = "camino";
+let francisco_el_matematico = "camino";
 
 module.exports = {
   //
