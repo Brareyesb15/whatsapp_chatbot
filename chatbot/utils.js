@@ -161,22 +161,22 @@ const updateJsonAgents = async (sender, agentId, nameChatbot) => {
     console.error("An error occurred in execute:", error);
   }
 };
-/**
- * Reads the JSON file containing agent associations based on the chatbot's name.
- *
- * @param {string} nameChatbot - The name or identifier of the chatbot.
- * @returns {object} - The object containing user-agent associations.
- */
-const readJsonAgents = async (nameChatbot) => {
-  try {
-    console.log("entró", nameChatbot);
-    const data = fs.readFileSync(`Data/Agents/${nameChatbot}.json`, "utf-8");
-    console.log("data", JSON.parse(data));
-    return JSON.parse(data);
-  } catch (err) {
-    return {};
-  }
-};
+// /**
+//  * Reads the JSON file containing agent associations based on the chatbot's name.
+//  *
+//  * @param {string} nameChatbot - The name or identifier of the chatbot.
+//  * @returns {object} - The object containing user-agent associations.
+//  */
+// const readJsonAgents = async (nameChatbot) => {
+//   try {
+//     console.log("entró", nameChatbot);
+//     const data = fs.readFileSync(`Data/Agents/${nameChatbot}.json`, "utf-8");
+//     console.log("data", JSON.parse(data));
+//     return JSON.parse(data);
+//   } catch (err) {
+//     return {};
+//   }
+// };
 
 module.exports = {
   updateChatMemory,
