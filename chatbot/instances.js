@@ -1,5 +1,5 @@
-let instanciasBot = {};
+// let instanciasBot = {};
 
-module.exports = {
-  instanciasBot,
-};
+// module.exports = {
+//   instanciasBot,
+// };

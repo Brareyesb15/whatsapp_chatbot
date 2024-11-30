@@ -4,7 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="11fb6978-6600-4db4-b720-7ada68828210" name="Changes" comment="" />
+    <list default="true" id="11fb6978-6600-4db4-b720-7ada68828210" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -28,7 +30,7 @@
     "git-widget-placeholder": "master",
     "ignore.virus.scanning.warn.message": "true",
     "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "C:/Users/Usuario/Downloads/CodeGPT-2.0-prueba-renderizacion-toolWindow.zip",
+    "last_opened_file_path": "C:/Users/Usuario/Downloads/CodeGPT-2.0-prueba-viernes-29-10-48.zip",
     "settings.editor.selected.configurable": "preferences.pluginManager"
   }
 }]]></component>
